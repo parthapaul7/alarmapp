@@ -141,22 +141,22 @@ function del(h,m){
   }
 }
 
-// function showAlarms() {
-//   html = "";
-//   let amorpm='PM'
-//   let temp='';
-//   times.forEach((e) => {
-//     par = JSON.parse(e);
+function showAlarms() {
+  html = "";
+  let amorpm='PM'
+  let temp='';
+  times.forEach((e) => {
+    par = JSON.parse(e);
 
-//     temp=par.hour;
+    temp=par.hour;
 
-//     par.hour>=12 ? temp = par.hour-12 : amorpm='AM';
+    par.hour>=12 ? temp = par.hour-12 : amorpm='AM';
 
-//     temp==0? temp=12:1;
+    temp==0? temp=12:1;
 
-//     html += ` <br> Alarm at ${temp}:${par.min} ${amorpm} <button class="btn btn-outline-secondary"  onClick='del(${par.hour},${par.min})' > Delete </button>`;
+    html += ` <br> Alarm at ${temp}:${par.min} ${amorpm} <button class="btn btn-outline-secondary"  onClick='del(${par.hour},${par.min})' > Delete </button>`;
 
-//     console.log("showAlarms called");
-//   });
-//   alarms.innerHTML = html;
-// }
+    console.log("showAlarms called");
+  });
+  alarms.innerHTML = html;
+}
