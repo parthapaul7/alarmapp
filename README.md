@@ -1,3 +1,3 @@
 # alarmapp
-cheak out here   
+check out here   
 https://alarmclock-8b393.web.app/
