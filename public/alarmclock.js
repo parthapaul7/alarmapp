@@ -6,137 +6,111 @@ const alarmSound = document.getElementById("alarmSound");
 const alarms = document.getElementById("alarms");
 
 let hour = new Date().getHours();
-let alarmTime = { hour: 0, min: 0 };
 let times = [];
 let html = "";
 
-let ampm = "AM";
-let alarmOn = true;
-let par = "";
 
-
-
-JSON.parse(localStorage.getItem("key")) == null
-  ? ampm
-  : (times = JSON.parse(localStorage.getItem("key")));
+times = JSON.parse(localStorage.getItem("key"));
 
 onOff.addEventListener("click", function () {
-  alarmOn == true ? (alarmOn = false) : (alarmOn = true);
-  alarmOn == true
+  alarmSound.volume==1 ? alarmSound.volume=0: alarmSound.volume=1;
+  alarmSound.volume==1
     ? (onOff.innerHTML = `Alarm ON <i class="fas fa-bell"></i>`)
     : (onOff.innerHTML = `Alarm OFF <i class="far fa-bell-slash"></i>`);
+
+    
 });
 
 btn.addEventListener("click", function () {
- 
-  let val= inputTime.value
-    alarmTime.hour = val[0]+val[1];
-    alarmTime.min = val[3]+val[4];
+  let val = inputTime.value;
 
-    if(inputTime.value != ''){
+  if (val == "") return alert("select time!!!");
 
-    times.push(JSON.stringify(alarmTime));
+  let obj = {
+    hour: val[0] + val[1],
+    min: val[3] + val[4],
+  };
 
-    inputTime.value = "";
+  times.unshift(obj);
 
-    localStorage.setItem("key", JSON.stringify(times)); //you cant store arrey or object in local storage only string
-    showAlarms();
-}
+  inputTime.value = "";
+
+  localStorage.clear();
+
+  localStorage.setItem("key", JSON.stringify(times)); //you cant store arrey or object in local storage only string
+  showAlarms();
+  alarm();
 });
 
 engine();
 
 function engine() {
-
+  showtime();
+  alarm();
 
   setInterval(() => {
     showtime();
-    alarm();
+    
   }, 1000);
-  
+
   showAlarms();
 }
 
 function showtime() {
-  
-  if (hour >= 12) {
-    hour = hour - 12;
-    
-    ampm = "PM";
-  } 
-  let temp='';
-  hour==0? temp=12:temp=hour;
   let cTime =
-     temp +
+    correct(hour)[0] +
     ":" +
     new Date().getMinutes() +
     ":" +
     new Date().getSeconds() +
     " " +
-    ampm;
+    correct(hour)[1];
 
   time.innerHTML = cTime;
 }
 
 function alarm() {
   times.forEach((e) => {
-    par = JSON.parse(e);
+    let a = e.hour * 3600 + e.min * 60;
+    let b = hour * 3600 + (new Date().getMinutes())*60 + new Date().getSeconds();
+    console.log( (a-b) * 1000);
 
-    if (
-      par.hour == new Date().getHours() &&
-      par.min == new Date().getMinutes()
-    ) {
-      if (alarmOn) {
-        alarmSound.play();
-        console.log("audio playing");
-      }
-    }
+    if(a-b <0) return;
+    
+    setTimeout(() => {
+
+     alarmSound.play();
+      console.log("alarm Playing", (a-b) * 1000);
+    }, (a-b) * 1000);
+   
   });
 }
 
 function showAlarms() {
   html = "";
-  let amorpm='PM'
-  let temp='';
-  times.forEach((e) => {
-    par = JSON.parse(e);
+  let val;
+  times.forEach((e, index) => {
+    val = correct(e.hour);
 
-    temp=par.hour;
-
-    par.hour>=12 ? temp = par.hour-12 : amorpm='AM';
-
-    temp==0? temp=12:1;
-
-    html += ` <br> Alarm at ${temp}:${par.min} ${amorpm} <button class="btn btn-outline-secondary"  onClick='del(${par.hour},${par.min})' > Delete </button>`;
+    html += ` <br> Alarm at ${val[0]}:${e.min} ${val[1]} <button class="btn btn-outline-secondary"  onClick='del(${index})' > Delete </button>`;
 
     console.log("showAlarms called");
   });
   alarms.innerHTML = html;
 }
 
+function del(i) {
+  times.splice(i, 1);
+  localStorage.clear();
+  localStorage.setItem("key", JSON.stringify(times));
+  showAlarms();
+}
 
-function del(h,m){
+// am pm correction
+function correct(hr) {
+  if (hr < 12 && hr != 0) return [hr, "AM"];
 
-    
-    let hr=0;
-    let min=0;
-
-  for (let i=0; i< times.length;) {
-
-    hr=JSON.parse(times[i]).hour;
-    min= JSON.parse(times[i]).min;
-
-    if ( hr==h && min==m ) {
-      times.splice(i, 1);
-      console.log(hr==h,min==m);
-
-     localStorage.clear();
-     localStorage.setItem("key", JSON.stringify(times));
-     showAlarms();
-    
-    } 
-    else {
-      ++i;
-    }
-  }
+  if (hr == 0) return [12, "AM"];
+  if (hr == 12) return [12, "PM"];
+  return [hr - 12, "PM"];
 }
